@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnimalGame", "AnimalGame\AnimalGame.vcproj", "{8BFB843B-6B36-42AF-861C-23133DBF379D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", "{48DC3400-6410-4D04-95B5-E9E096A0FC23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8BFB843B-6B36-42AF-861C-23133DBF379D} = {8BFB843B-6B36-42AF-861C-23133DBF379D}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8BFB843B-6B36-42AF-861C-23133DBF379D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8BFB843B-6B36-42AF-861C-23133DBF379D}.Debug|Win32.Build.0 = Debug|Win32
+		{8BFB843B-6B36-42AF-861C-23133DBF379D}.Release|Win32.ActiveCfg = Release|Win32
+		{8BFB843B-6B36-42AF-861C-23133DBF379D}.Release|Win32.Build.0 = Release|Win32
+		{48DC3400-6410-4D04-95B5-E9E096A0FC23}.Debug|Win32.ActiveCfg = Debug|Win32
+		{48DC3400-6410-4D04-95B5-E9E096A0FC23}.Debug|Win32.Build.0 = Debug|Win32
+		{48DC3400-6410-4D04-95B5-E9E096A0FC23}.Release|Win32.ActiveCfg = Release|Win32
+		{48DC3400-6410-4D04-95B5-E9E096A0FC23}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
