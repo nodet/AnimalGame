@@ -11,6 +11,7 @@ Yes Yes -> two wins
 #include <iostream>
 #include <assert.h>
 #include <string>
+#include <memory>
 
 void intro()  {
     const char* intro =
@@ -18,12 +19,6 @@ void intro()  {
 \n\
 Think of an animal.";
     std::cout << intro << std::endl;
-}
-
-
-void ask_question()  {
-    const char* is_your_animal = "Is your animal a ";
-    std::cout << is_your_animal << "cat" << "? ";
 }
 
 
@@ -55,6 +50,41 @@ PossibleAnswers get_answer() {
     }
 }
 
+class KnowledgeItem {
+public:
+    KnowledgeItem(const std::string text)
+        : text_(text)
+    {}
+    std::string getText() const {return text_;}
+    virtual std::string getQuestion() const {
+        return "Is your animal a " + getText() + "? ";
+    }
+    virtual bool isAnimal() const {return true;}
+private:
+    std::string text_;
+};
+typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
+
+class Question : public KnowledgeItem {
+public:
+    Question(const std::string text, KnowledgeItemPtr yes, KnowledgeItemPtr no)
+        : KnowledgeItem(text)
+        , yes_(yes)
+        , no_(no)
+    {}
+    virtual bool isAnimal() const {return false;}
+    virtual std::string getQuestion() const {
+        return getText() + " ";
+    }
+public: // TODO
+    KnowledgeItemPtr yes_;
+    KnowledgeItemPtr no_;
+};
+
+void ask_question(KnowledgeItemPtr animal)  {
+    std::cout << animal->getQuestion();
+}
+
 
 
 
@@ -68,31 +98,47 @@ void i_win()  {
     std::cout << win << std::endl;
 }
 
-void i_loose()  {
+KnowledgeItemPtr i_loose(KnowledgeItemPtr current)  {
     const char* what_is_it = "Oh no. What was it? ";
     std::cout << what_is_it ;
-    std::string newAnimal = get_string(std::cin);
+    std::string newAnimalName = get_string(std::cin);
+    KnowledgeItemPtr newAnimal(new KnowledgeItem(newAnimalName));
 
-    std::cout << "What is a yes/no question to tell a " << newAnimal << " from a cat? ";
+    std::cout << "What is a yes/no question to tell a " 
+              << newAnimalName << " from a " 
+              << current->getText() << "? ";
     std::string discriminate_new_animal = get_string(std::cin);
+
+    KnowledgeItemPtr new_root(new Question(discriminate_new_animal, newAnimal, current));
+  
     std::cout << "Thanks! Let's play again." << std::endl;
+    return new_root;
 }
 
 int main() {
 
+    KnowledgeItemPtr root(new KnowledgeItem("cat"));
+    KnowledgeItemPtr current(root);
+
     intro();
     while (1) {
-        ask_question();
+        ask_question(current);
         PossibleAnswers answer = get_answer();
         switch (answer) {
         case Quit:
             say_goodbye();
             return 0;
         case Yes:
-            i_win();
+            if (current->isAnimal()) {
+                i_win();
+                current = root;
+            } else {
+                current = ((Question*)root.get())->yes_;
+            }
             break;
         case No:
-            i_loose();
+            root = i_loose(current);
+            current = root;
             break;
         default:
             assert(0);
