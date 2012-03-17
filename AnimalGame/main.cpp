@@ -10,6 +10,7 @@ Yes Yes -> two wins
 
 #include <iostream>
 #include <assert.h>
+#include <string>
 
 void intro()  {
     const char* intro =
@@ -45,14 +46,16 @@ std::string get_string(std::istream& s) {
 
 PossibleAnswers get_answer() {
     std::string s = get_string(std::cin);  // TODO
-    if ((s.size() == 0) || (s.compare("Quit") == 0)) {        // TODO
+    if ((s.size() == 0) || (s == "Quit")) {
         return Quit;
-    } else if (s.compare("Yes") == 0) {
+    } else if (s == "Yes") {
         return Yes;
     } else {
         return No;
     }
 }
+
+
 
 
 void say_goodbye()  {
@@ -70,7 +73,7 @@ void i_loose()  {
     std::cout << what_is_it ;
     std::string newAnimal = get_string(std::cin);
 
-    std::cout << "What is a yes/no question to tell a " << newAnimal.c_str() << " from a cat? ";  // TODO: why the need for c_str()?
+    std::cout << "What is a yes/no question to tell a " << newAnimal << " from a cat? ";
     std::string discriminate_new_animal = get_string(std::cin);
     std::cout << "Thanks! Let's play again." << std::endl;
 }
