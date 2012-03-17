@@ -61,10 +61,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\test.bat"
-			>
-		</File>
-		<File
 			RelativePath="..\test.sh"
 			>
 		</File>
