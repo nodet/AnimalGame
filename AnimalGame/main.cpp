@@ -11,7 +11,6 @@ Yes Yes -> two wins
 #include <iostream>
 #include <assert.h>
 
-
 void intro()  {
     const char* intro =
 "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n\
@@ -66,6 +65,17 @@ void i_win()  {
     std::cout << win << std::endl;
 }
 
+void i_loose()  {
+    const char* what_is_it = "Oh no. What was it? ";
+    std::cout << what_is_it ;
+    std::string newAnimal = get_string(std::cin);
+
+    const char* discriminate = "What is a yes/no question to tell a lobster from a cat? ";
+    std::cout << discriminate ;
+    std::string discriminate_new_animal = get_string(std::cin);
+    std::cout << "Thanks! Let's play again." << std::endl;
+}
+
 int main() {
 
     intro();
@@ -80,6 +90,8 @@ int main() {
             i_win();
             break;
         case No:
+            i_loose();
+            break;
         default:
             assert(0);
         }
