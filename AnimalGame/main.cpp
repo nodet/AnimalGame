@@ -2,8 +2,8 @@
 /*
 
 Missing tests:
-Yes -> I win
 Yes Yes -> two wins
+Add "Think of an animal" on each round
 */
 
 
