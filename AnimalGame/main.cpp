@@ -3,12 +3,13 @@
 
 Missing tests:
 Yes -> I win
-
+Yes Yes -> two wins
 */
 
 
 
 #include <iostream>
+#include <assert.h>
 
 
 void intro()  {
@@ -45,9 +46,9 @@ std::string get_string(std::istream& s) {
 
 PossibleAnswers get_answer() {
     std::string s = get_string(std::cin);  // TODO
-    if (s.compare("Quit") == 0) {        // TODO
+    if ((s.size() == 0) || (s.compare("Quit") == 0)) {        // TODO
         return Quit;
-    } else if (s.compare("Yes)") == 0) {
+    } else if (s.compare("Yes") == 0) {
         return Yes;
     } else {
         return No;
@@ -60,14 +61,28 @@ void say_goodbye()  {
     std::cout << goodbye << std::endl;
 }
 
+void i_win()  {
+    const char* win = "Ha! I win! Let's play again";
+    std::cout << win << std::endl;
+}
+
 int main() {
 
     intro();
-    ask_question();
-    PossibleAnswers answer = get_answer();
-    if (Quit == answer) {
-        say_goodbye();
-        return 0;
+    while (1) {
+        ask_question();
+        PossibleAnswers answer = get_answer();
+        switch (answer) {
+        case Quit:
+            say_goodbye();
+            return 0;
+        case Yes:
+            i_win();
+            break;
+        case No:
+        default:
+            assert(0);
+        }
     }
 
     return 0;
