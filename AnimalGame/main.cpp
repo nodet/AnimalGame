@@ -70,7 +70,7 @@ void i_loose()  {
     std::cout << what_is_it ;
     std::string newAnimal = get_string(std::cin);
 
-    std::cout << "What is a yes/no question to tell a " << newAnimal.c_str() << " from a cat? ";
+    std::cout << "What is a yes/no question to tell a " << newAnimal.c_str() << " from a cat? ";  // TODO: why the need for c_str()?
     std::string discriminate_new_animal = get_string(std::cin);
     std::cout << "Thanks! Let's play again." << std::endl;
 }
