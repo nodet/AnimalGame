@@ -61,6 +61,10 @@ public:
         : text_(text)
     {}
     std::string getText() const {return text_;}
+    void ask_question() const {
+        std::cout << getQuestion();
+    }
+
     virtual std::string getQuestion() const {
         return "Is your animal a " + getText() + "? ";
     }
@@ -87,10 +91,6 @@ public: // TODO
     KnowledgeItemPtr yes_;
     KnowledgeItemPtr no_;
 };
-
-void ask_question(KnowledgeItemPtr animal)  {
-    std::cout << animal->getQuestion();
-}
 
 
 
@@ -141,7 +141,7 @@ int main() {
 
     intro();
     while (1) {
-        ask_question(current);
+        current->ask_question();
         PossibleAnswers answer = get_answer();
         switch (answer) {
         case Quit:
