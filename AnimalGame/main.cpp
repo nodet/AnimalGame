@@ -1,18 +1,7 @@
-
-/*
-
-Missing tests:
-Yes Yes -> two wins
-*/
-
-
-
 #include <iostream>
 #include <assert.h>
 #include <string>
 #include <memory>
-
-
 
 
 std::string get_string(std::istream& s) {
