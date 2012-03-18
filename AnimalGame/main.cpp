@@ -3,7 +3,6 @@
 
 Missing tests:
 Yes Yes -> two wins
-Add "Think of an animal" on each round
 No isn't necessarily the end of the game
 */
 
@@ -118,12 +117,14 @@ void Animal::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = root;
 
     std::cout << "Thanks! Let's play again." << std::endl;
+    std::cout << "Think of an animal." << std::endl;
 }
 
 bool Animal::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = root;
     const char* win = "Ha! I win! Let's play again";
     std::cout << win << std::endl;
+    std::cout << "Think of an animal." << std::endl;
     return true;
 }
 
