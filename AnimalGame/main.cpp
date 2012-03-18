@@ -103,7 +103,7 @@ public:
 
     virtual std::string getText() const = 0;
 
-    virtual void display_tree(bool) const = 0;
+    virtual bool display_tree(bool) const = 0;
     virtual const KnowledgeItem* getRightMostAnimal() const = 0;
 };
 
@@ -120,8 +120,9 @@ public:
     virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
-    virtual void display_tree(bool) const {
+    virtual bool display_tree(bool) const {
         //std::cout << getText() << std::endl;
+        return true;
     }
     virtual const KnowledgeItem* getRightMostAnimal() const {
         return this;
@@ -160,14 +161,15 @@ public:
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual void display_tree(bool skipNo) const {
-        no_->display_tree(false);
-        if (!skipNo) {
+    virtual bool display_tree(bool skipNo) const {
+        bool must_skip_no = no_->display_tree(false);
+        if (!skipNo && must_skip_no) {
             std::cout << no_->getText() << std::endl;
         }
         std::cout << yes_->getRightMostAnimal()->getText() << std::endl;
         std::cout << getText() << std::endl;
         yes_->display_tree(true);
+        return false;
     }
     virtual const KnowledgeItem* getRightMostAnimal() const {
         return no_->getRightMostAnimal();
