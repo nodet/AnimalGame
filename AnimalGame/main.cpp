@@ -4,6 +4,7 @@
 Missing tests:
 Yes Yes -> two wins
 Add "Think of an animal" on each round
+No isn't necessarily the end of the game
 */
 
 
@@ -50,6 +51,10 @@ PossibleAnswers get_answer() {
     }
 }
 
+
+class KnowledgeItem;
+typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
+
 class KnowledgeItem {
 public:
     KnowledgeItem(const std::string text)
@@ -59,11 +64,14 @@ public:
     virtual std::string getQuestion() const {
         return "Is your animal a " + getText() + "? ";
     }
-    virtual bool isAnimal() const {return true;}
+	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+		current = root;
+		return true;
+	}
 private:
     std::string text_;
 };
-typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
+
 
 class Question : public KnowledgeItem {
 public:
@@ -72,10 +80,13 @@ public:
         , yes_(yes)
         , no_(no)
     {}
-    virtual bool isAnimal() const {return false;}
     virtual std::string getQuestion() const {
         return getText() + " ";
     }
+	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+		current = ((Question*)root.get())->yes_;
+		return false;
+	}
 public: // TODO
     KnowledgeItemPtr yes_;
     KnowledgeItemPtr no_;
@@ -129,12 +140,9 @@ int main() {
             say_goodbye();
             return 0;
         case Yes:
-            if (current->isAnimal()) {
-                i_win();
-                current = root;
-            } else {
-                current = ((Question*)root.get())->yes_;
-            }
+			if (current->toYesNode(root, current)) {
+				i_win();
+			}
             break;
         case No:
             root = i_loose(current);
