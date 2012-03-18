@@ -103,6 +103,8 @@ public:
 
     virtual std::string getText() const = 0;
 
+    virtual void display_tree(bool) const = 0;
+    virtual const KnowledgeItem* getRightMostAnimal() const = 0;
 };
 
 
@@ -117,6 +119,13 @@ public:
     }
     virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
+    
+    virtual void display_tree(bool) const {
+        //std::cout << getText() << std::endl;
+    }
+    virtual const KnowledgeItem* getRightMostAnimal() const {
+        return this;
+    }
 
 protected:
     virtual std::string getText() const {return text_;}
@@ -151,12 +160,24 @@ public:
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
+    virtual void display_tree(bool skipNo) const {
+        no_->display_tree(false);
+        if (!skipNo) {
+            std::cout << no_->getText() << std::endl;
+        }
+        std::cout << yes_->getRightMostAnimal()->getText() << std::endl;
+        std::cout << getText() << std::endl;
+        yes_->display_tree(true);
+    }
+    virtual const KnowledgeItem* getRightMostAnimal() const {
+        return no_->getRightMostAnimal();
+    }
 protected:
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
         return getText() + " ";
     }
 
-private:
+public: // TODO
     Ptr yes_;
     Ptr no_;
 };
@@ -223,7 +244,6 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
 }
 
 
-
 int main() {
 
     KnowledgeItem::Ptr root(new Animal("cat"));
@@ -231,5 +251,6 @@ int main() {
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
 
+    root->display_tree(false);
     return 0;
 }
