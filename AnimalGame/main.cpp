@@ -68,7 +68,7 @@ public:
 		current = root;
 		return true;
 	}
-    void i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+    virtual void i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 private:
     std::string text_;
 };
@@ -88,6 +88,7 @@ public:
 		current = ((Question*)root.get())->yes_;
 		return false;
 	}
+    virtual void i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 public: // TODO
     KnowledgeItemPtr yes_;
     KnowledgeItemPtr no_;
@@ -131,6 +132,10 @@ KnowledgeItemPtr i_loose(KnowledgeItemPtr current)  {
 void KnowledgeItem::i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     root = ::i_loose(current);
     current = root;
+}
+
+void Question::i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+    current = no_;
 }
 
 
