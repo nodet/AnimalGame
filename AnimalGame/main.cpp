@@ -93,7 +93,7 @@ protected:
         return getText() + " ";
     }
 
-public: // TODO
+private:
     KnowledgeItemPtr yes_;
     KnowledgeItemPtr no_;
 };
