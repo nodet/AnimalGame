@@ -68,6 +68,7 @@ public:
 		current = root;
 		return true;
 	}
+    void i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 private:
     std::string text_;
 };
@@ -126,6 +127,13 @@ KnowledgeItemPtr i_loose(KnowledgeItemPtr current)  {
     return new_root;
 }
 
+
+void KnowledgeItem::i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+    root = ::i_loose(current);
+    current = root;
+}
+
+
 int main() {
 
     KnowledgeItemPtr root(new KnowledgeItem("cat"));
@@ -145,8 +153,7 @@ int main() {
 			}
             break;
         case No:
-            root = i_loose(current);
-            current = root;
+            current->i_loose(root, current);
             break;
         default:
             assert(0);
