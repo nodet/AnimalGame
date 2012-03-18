@@ -57,31 +57,40 @@ typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
 
 class KnowledgeItem {
 public:
-    KnowledgeItem(const std::string text)
+    virtual void ask_question() const = 0;
+
+	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) = 0;
+    virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) = 0;
+
+    virtual std::string getText() const = 0;
+
+
+};
+
+class Animal : public KnowledgeItem {
+public:
+    Animal(const std::string text)
         : text_(text)
     {}
-    void ask_question() const {
+    virtual void ask_question() const {
         std::cout << getQuestion();
     }
-
-	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+    virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
-
 protected:
-    std::string getText() const {return text_;}
+    virtual std::string getText() const {return text_;}
     virtual std::string getQuestion() const {
         return "Is your animal a " + getText() + "? ";
     }
-
 private:
     std::string text_;
 };
 
 
-class Question : public KnowledgeItem {
+class Question : public Animal {
 public:
     Question(const std::string text, KnowledgeItemPtr yes, KnowledgeItemPtr no)
-        : KnowledgeItem(text)
+        : Animal(text)
         , yes_(yes)
         , no_(no)
     {}
@@ -106,11 +115,11 @@ void say_goodbye()  {
     std::cout << goodbye << std::endl;
 }
 
-void KnowledgeItem::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+void Animal::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     const char* what_is_it = "Oh no. What was it? ";
     std::cout << what_is_it ;
     std::string newAnimalName = get_string(std::cin);
-    KnowledgeItemPtr newAnimal(new KnowledgeItem(newAnimalName));
+    KnowledgeItemPtr newAnimal(new Animal(newAnimalName));
 
     std::cout << "What is a yes/no question to tell a " 
         << newAnimalName << " from a " 
@@ -124,7 +133,7 @@ void KnowledgeItem::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) 
     std::cout << "Thanks! Let's play again." << std::endl;
 }
 
-bool KnowledgeItem::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+bool Animal::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = root;
     const char* win = "Ha! I win! Let's play again";
     std::cout << win << std::endl;
@@ -142,7 +151,7 @@ bool Question::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current
 
 int main() {
 
-    KnowledgeItemPtr root(new KnowledgeItem("cat"));
+    KnowledgeItemPtr root(new Animal("cat"));
     KnowledgeItemPtr current(root);
 
     intro();
