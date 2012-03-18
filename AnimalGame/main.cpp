@@ -17,6 +17,26 @@ std::string get_string(std::istream& s) {
 }
 
 
+// TODO: move all those say_xxx functions into some class to break dependency.
+
+void say_hello()  {
+    const char* intro = "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n";
+    std::cout << intro << std::endl;
+}
+
+void say_goodbye()  {
+    const char* goodbye = "Ok. Bye!";
+    std::cout << goodbye << std::endl;
+}
+
+void say_think()  {
+    std::cout << "Think of an animal." << std::endl;
+}
+
+
+
+
+
 class KnowledgeItem;
 typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
 
@@ -108,7 +128,7 @@ void Animal::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = root;
 
     std::cout << "Thanks! Let's play again." << std::endl;
-    std::cout << "Think of an animal." << std::endl;
+    say_think();
 }
 
 
@@ -116,7 +136,7 @@ bool Animal::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) 
     current = root;
     const char* win = "Ha! I win! Let's play again";
     std::cout << win << std::endl;
-    std::cout << "Think of an animal." << std::endl;
+    say_think();
     return true;
 }
 
@@ -132,25 +152,14 @@ bool Question::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current
 
 
 
-void intro()  {
-    const char* intro =
-"Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n\
-\n\
-Think of an animal.";
-    std::cout << intro << std::endl;
-}
-
-void say_goodbye()  {
-    const char* goodbye = "Ok. Bye!";
-    std::cout << goodbye << std::endl;
-}
-
 int main() {
 
     KnowledgeItemPtr root(new Animal("cat"));
     KnowledgeItemPtr current(root);
 
-    intro();
+    say_hello();
+    say_think();  // TODO: it's odd that this only appears once...  
+                  // Others are inside toYesNode or toNoNode...
     while (1) {
         switch (current->ask_question()) {
         case KnowledgeItem::Quit:
