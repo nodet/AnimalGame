@@ -2,7 +2,7 @@
 
 cd Debug
 
-for f in ../Tests/?
+for f in ../Tests/? ../Tests/??
 do
     filename="${f##*/}"
     ./AnimalGame.exe < $f > $filename.test
