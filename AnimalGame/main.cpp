@@ -66,8 +66,8 @@ protected:
     }
 
 private:
-    PossibleAnswers get_answer() const {
-        std::string s = get_string(std::cin);  // TODO
+    static PossibleAnswers get_answer() {
+        std::string s = get_string(std::cin);
         if ((s.size() == 0) || (s == "Quit")) {
             return Quit;
         } else if (s == "Yes") {
