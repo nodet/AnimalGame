@@ -57,7 +57,7 @@ typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
 
 class KnowledgeItem {
 public:
-    virtual void ask_question() const = 0;
+    virtual PossibleAnswers ask_question() const = 0;
 
 	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) = 0;
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) = 0;
@@ -72,8 +72,9 @@ public:
     Animal(const std::string text)
         : text_(text)
     {}
-    virtual void ask_question() const {
+    virtual PossibleAnswers ask_question() const {
         std::cout << getQuestion();
+        return get_answer();
     }
     virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
@@ -156,9 +157,7 @@ int main() {
 
     intro();
     while (1) {
-        current->ask_question();
-        PossibleAnswers answer = get_answer();
-        switch (answer) {
+        switch (current->ask_question()) {
         case Quit:
             say_goodbye();
             return 0;
