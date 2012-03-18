@@ -11,6 +11,7 @@ class Messenger {
 public:
     typedef std::shared_ptr<Messenger> Ptr;
 
+    // TODO: All methods should probably be const
     virtual std::string get_string(std::istream& s) = 0;
 
     virtual void say_hello() = 0;
@@ -24,6 +25,10 @@ public:
 
     virtual const char* yes() = 0;
     virtual const char* quit() = 0;
+
+protected:
+    // Non-const: would probably change some members if not using global streams
+    virtual void say(std::string s) = 0;
 };
 
 class Cin_Cout_Messenger : public Messenger {
@@ -45,38 +50,42 @@ public:
         return result;
     }
     void say_hello()  {
-        const char* intro = "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n";
-        std::cout << intro << std::endl;
+        const char* intro = "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n\n";
+        say(intro);
     }
     void say_goodbye()  {
-        const char* goodbye = "Ok. Bye!";
-        std::cout << goodbye << std::endl;
+        const char* goodbye = "Ok. Bye!\n";
+        say(goodbye);
     }
     void say_think()  {
-        std::cout << "Think of an animal." << std::endl;
+        say("Think of an animal.\n");
     }
     void say_play_again() {
         std::cout << "Thanks! Let's play again." << std::endl;
     }
     void say_i_win() {
-        const char* win = "Ha! I win! Let's play again";
-        std::cout << win << std::endl;
+        const char* win = "Ha! I win! Let's play again\n";
+        say(win);
     }
     std::string guess_animal(const std::string& animalName) {
         return "Is your animal a " + animalName + "? ";
     }
     std::string ask_yes_no_question(std::string newAnimalName, std::string badName) {
-        std::cout << "What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ";
+        say("What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ");
         return get_string(std::cin);
     }
     std::string ask_new_animal_name() {
-        std::cout << "Oh no. What was it? ";
+        say("Oh no. What was it? ");
         return get_string(std::cin);
     }
 
     const char* yes() {return "Yes";}
     const char* quit() {return "Quit";}
 
+protected:
+    virtual void say(std::string s) {
+        std::cout << s;
+    }
 };
 
 
@@ -187,19 +196,20 @@ bool Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previo
 }
 
 
-void run(Messenger::Ptr messenger) {
-    KnowledgeItem::Ptr  root(new Animal("cat"));
+void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
     KnowledgeItem::Ptr* previous(&root);
     KnowledgeItem::Ptr  current(root);
 
     messenger->say_hello();
     messenger->say_think();  // TODO: it's odd that this only appears once...  
                              // Others are inside toYesNode or toNoNode...
-    while (1) {
+    bool stop = false;
+    while (!stop) {
         switch (current->ask_question(messenger)) {
         case KnowledgeItem::Quit:
             messenger->say_goodbye();
-            return;
+            stop = true;
+            break;
         case KnowledgeItem::Yes:
             current->toYesNode(messenger, root, previous, current);
             break;
@@ -210,14 +220,16 @@ void run(Messenger::Ptr messenger) {
             assert(0);
         }
     }
-
 }
 
 
 
 int main() {
 
+    KnowledgeItem::Ptr root(new Animal("cat"));
+
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
-    run(messenger);
+    run(messenger, root);
+
     return 0;
 }
