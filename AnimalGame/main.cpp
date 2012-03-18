@@ -148,8 +148,7 @@ int main() {
             say_goodbye();
             return 0;
         case Yes:
-			if (current->toYesNode(root, current)) {
-			}
+			current->toYesNode(root, current);
             break;
         case No:
             current->toNoNode(root, current);
