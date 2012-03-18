@@ -64,10 +64,7 @@ public:
     virtual std::string getQuestion() const {
         return "Is your animal a " + getText() + "? ";
     }
-	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
-		current = root;
-		return true;
-	}
+	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 private:
     std::string text_;
@@ -84,10 +81,7 @@ public:
     virtual std::string getQuestion() const {
         return getText() + " ";
     }
-	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
-		current = ((Question*)root.get())->yes_;
-		return false;
-	}
+	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 public: // TODO
     KnowledgeItemPtr yes_;
@@ -104,11 +98,6 @@ void ask_question(KnowledgeItemPtr animal)  {
 void say_goodbye()  {
     const char* goodbye = "Ok. Bye!";
     std::cout << goodbye << std::endl;
-}
-
-void i_win()  {
-    const char* win = "Ha! I win! Let's play again";
-    std::cout << win << std::endl;
 }
 
 void KnowledgeItem::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
@@ -129,10 +118,21 @@ void KnowledgeItem::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) 
     std::cout << "Thanks! Let's play again." << std::endl;
 }
 
+bool KnowledgeItem::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+    current = root;
+    const char* win = "Ha! I win! Let's play again";
+    std::cout << win << std::endl;
+    return true;
+}
+
 void Question::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = no_;
 }
 
+bool Question::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+    current = ((Question*)root.get())->yes_;
+    return false;
+}
 
 int main() {
 
@@ -149,7 +149,6 @@ int main() {
             return 0;
         case Yes:
 			if (current->toYesNode(root, current)) {
-				i_win();
 			}
             break;
         case No:
