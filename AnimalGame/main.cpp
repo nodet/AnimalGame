@@ -4,34 +4,34 @@
 #include <memory>
 
 
-std::string get_string(std::istream& s) {
-    std::string result;
-    char c;
-    while (s.get(c)) {
-        if ('\n' == c) {
-            return result;
+
+
+class Messenger {
+    // This should become an interface when the need for various input/output channels appears
+public:
+    static std::string get_string(std::istream& s) {
+        std::string result;
+        char c;
+        while (s.get(c)) {
+            if ('\n' == c) {
+                return result;
+            }
+            result += c;
         }
-        result += c;
+        return result;
     }
-    return result;
-}
-
-
-// TODO: move all those say_xxx functions into some class to break dependency.
-
-void say_hello()  {
-    const char* intro = "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n";
-    std::cout << intro << std::endl;
-}
-
-void say_goodbye()  {
-    const char* goodbye = "Ok. Bye!";
-    std::cout << goodbye << std::endl;
-}
-
-void say_think()  {
-    std::cout << "Think of an animal." << std::endl;
-}
+    static void say_hello()  {
+        const char* intro = "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n";
+        std::cout << intro << std::endl;
+    }
+    static void say_goodbye()  {
+        const char* goodbye = "Ok. Bye!";
+        std::cout << goodbye << std::endl;
+    }
+    static void say_think()  {
+        std::cout << "Think of an animal." << std::endl;
+    }
+};
 
 
 
@@ -75,7 +75,7 @@ protected:
 
 private:
     static PossibleAnswers get_answer() {
-        std::string s = get_string(std::cin);
+        std::string s = Messenger::get_string(std::cin);
         if ((s.size() == 0) || (s == "Quit")) {
             return Quit;
         } else if (s == "Yes") {
@@ -115,20 +115,20 @@ private:
 void Animal::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     const char* what_is_it = "Oh no. What was it? ";
     std::cout << what_is_it ;
-    std::string newAnimalName = get_string(std::cin);
+    std::string newAnimalName = Messenger::get_string(std::cin);
     KnowledgeItemPtr newAnimal(new Animal(newAnimalName));
 
     std::cout << "What is a yes/no question to tell a " 
         << newAnimalName << " from a " 
         << current->getText() << "? ";
-    std::string discriminate_new_animal = get_string(std::cin);
+    std::string discriminate_new_animal = Messenger::get_string(std::cin);
 
     KnowledgeItemPtr new_root(new Question(discriminate_new_animal, newAnimal, current));
     root = new_root;
     current = root;
 
     std::cout << "Thanks! Let's play again." << std::endl;
-    say_think();
+    Messenger::say_think();
 }
 
 
@@ -136,7 +136,7 @@ bool Animal::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) 
     current = root;
     const char* win = "Ha! I win! Let's play again";
     std::cout << win << std::endl;
-    say_think();
+    Messenger::say_think();
     return true;
 }
 
@@ -157,13 +157,13 @@ int main() {
     KnowledgeItemPtr root(new Animal("cat"));
     KnowledgeItemPtr current(root);
 
-    say_hello();
-    say_think();  // TODO: it's odd that this only appears once...  
+    Messenger::say_hello();
+    Messenger::say_think();  // TODO: it's odd that this only appears once...  
                   // Others are inside toYesNode or toNoNode...
     while (1) {
         switch (current->ask_question()) {
         case KnowledgeItem::Quit:
-            say_goodbye();
+            Messenger::say_goodbye();
             return 0;
         case KnowledgeItem::Yes:
 			current->toYesNode(root, current);
