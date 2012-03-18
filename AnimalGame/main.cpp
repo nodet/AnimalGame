@@ -60,7 +60,6 @@ public:
     KnowledgeItem(const std::string text)
         : text_(text)
     {}
-    std::string getText() const {return text_;}
     void ask_question() const {
         std::cout << getQuestion();
     }
@@ -70,6 +69,10 @@ public:
     }
 	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+
+protected:
+    std::string getText() const {return text_;}
+
 private:
     std::string text_;
 };
