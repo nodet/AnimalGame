@@ -14,14 +14,6 @@ No isn't necessarily the end of the game
 #include <string>
 #include <memory>
 
-void intro()  {
-    const char* intro =
-"Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n\
-\n\
-Think of an animal.";
-    std::cout << intro << std::endl;
-}
-
 
 enum PossibleAnswers {
     Yes, No, Quit
@@ -110,12 +102,6 @@ private:
 
 
 
-
-void say_goodbye()  {
-    const char* goodbye = "Ok. Bye!";
-    std::cout << goodbye << std::endl;
-}
-
 void Animal::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     const char* what_is_it = "Oh no. What was it? ";
     std::cout << what_is_it ;
@@ -148,6 +134,22 @@ void Question::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
 bool Question::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = ((Question*)root.get())->yes_;
     return false;
+}
+
+
+
+
+void intro()  {
+    const char* intro =
+"Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n\
+\n\
+Think of an animal.";
+    std::cout << intro << std::endl;
+}
+
+void say_goodbye()  {
+    const char* goodbye = "Ok. Bye!";
+    std::cout << goodbye << std::endl;
 }
 
 int main() {
