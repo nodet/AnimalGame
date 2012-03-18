@@ -68,7 +68,7 @@ public:
 		current = root;
 		return true;
 	}
-    virtual void i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+    virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 private:
     std::string text_;
 };
@@ -88,7 +88,7 @@ public:
 		current = ((Question*)root.get())->yes_;
 		return false;
 	}
-    virtual void i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+    virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 public: // TODO
     KnowledgeItemPtr yes_;
     KnowledgeItemPtr no_;
@@ -129,12 +129,25 @@ KnowledgeItemPtr i_loose(KnowledgeItemPtr current)  {
 }
 
 
-void KnowledgeItem::i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
-    root = ::i_loose(current);
+void KnowledgeItem::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+    const char* what_is_it = "Oh no. What was it? ";
+    std::cout << what_is_it ;
+    std::string newAnimalName = get_string(std::cin);
+    KnowledgeItemPtr newAnimal(new KnowledgeItem(newAnimalName));
+
+    std::cout << "What is a yes/no question to tell a " 
+        << newAnimalName << " from a " 
+        << current->getText() << "? ";
+    std::string discriminate_new_animal = get_string(std::cin);
+
+    KnowledgeItemPtr new_root(new Question(discriminate_new_animal, newAnimal, current));
+    root = new_root;
     current = root;
+
+    std::cout << "Thanks! Let's play again." << std::endl;
 }
 
-void Question::i_loose(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
+void Question::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = no_;
 }
 
@@ -158,7 +171,7 @@ int main() {
 			}
             break;
         case No:
-            current->i_loose(root, current);
+            current->toNoNode(root, current);
             break;
         default:
             assert(0);
