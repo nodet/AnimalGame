@@ -64,14 +64,14 @@ public:
         std::cout << getQuestion();
     }
 
-    virtual std::string getQuestion() const {
-        return "Is your animal a " + getText() + "? ";
-    }
 	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
 
 protected:
     std::string getText() const {return text_;}
+    virtual std::string getQuestion() const {
+        return "Is your animal a " + getText() + "? ";
+    }
 
 private:
     std::string text_;
@@ -85,11 +85,14 @@ public:
         , yes_(yes)
         , no_(no)
     {}
+	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+    virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+
+protected:
     virtual std::string getQuestion() const {
         return getText() + " ";
     }
-	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
-    virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+
 public: // TODO
     KnowledgeItemPtr yes_;
     KnowledgeItemPtr no_;
