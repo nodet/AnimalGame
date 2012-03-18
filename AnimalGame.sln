@@ -1,12 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnimalGame", "AnimalGame\AnimalGame.vcproj", "{8BFB843B-6B36-42AF-861C-23133DBF379D}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnimalGame", "AnimalGame\AnimalGame.vcxproj", "{8BFB843B-6B36-42AF-861C-23133DBF379D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", "{48DC3400-6410-4D04-95B5-E9E096A0FC23}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8BFB843B-6B36-42AF-861C-23133DBF379D} = {8BFB843B-6B36-42AF-861C-23133DBF379D}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{48DC3400-6410-4D04-95B5-E9E096A0FC23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
