@@ -30,7 +30,7 @@ public:
         : text_(text)
     {}
     virtual PossibleAnswers ask_question() const {
-        std::cout << getQuestion();
+        std::cout << get_question_to_ask();
         return get_answer();
     }
     virtual bool toYesNode(const Ptr& root, Ptr& current);
@@ -38,16 +38,16 @@ public:
 
 protected:
     virtual std::string getText() const {return text_;}
-    virtual std::string getQuestion() const {
+    virtual std::string get_question_to_ask() const {
         return Messenger::guess_animal(getText());
     }
 
 private:
     static PossibleAnswers get_answer() {
         std::string s = Messenger::get_string(std::cin);
-        if ((s.size() == 0) || (s == "Quit")) {
+        if ((s.size() == 0) || (s == Messenger::quit)) {
             return Quit;
-        } else if (s == "Yes") {
+        } else if (s == Messenger::yes) {
             return Yes;
         } else {
             return No;
@@ -71,7 +71,7 @@ public:
     virtual void toNoNode(Ptr& root, Ptr& current);
 
 protected:
-    virtual std::string getQuestion() const {
+    virtual std::string get_question_to_ask() const {
         return getText() + " ";
     }
 
@@ -155,6 +155,9 @@ class Cin_Cout_Messenger {
     // Individual messages could be made static members of some other class
     // to further decouple the language from the fact that we use cin/cout.
 public:
+    static const char* yes;
+    static const char* quit;
+
     static std::string get_string(std::istream& s) {
         std::string result;
         char c;
@@ -184,15 +187,11 @@ public:
         const char* win = "Ha! I win! Let's play again";
         std::cout << win << std::endl;
     }
-
     static std::string guess_animal(const std::string& animalName) {
         return "Is your animal a " + animalName + "? ";
     }
-    static std::string yes_no_question(std::string newAnimalName, std::string badName) {
-        return "What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ";
-    }
     static std::string ask_yes_no_question(std::string newAnimalName, std::string badName) {
-        std::cout << yes_no_question(newAnimalName, badName);
+        std::cout << "What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ";
         return get_string(std::cin);
     }
     static std::string ask_new_animal_name() {
@@ -201,6 +200,8 @@ public:
     }
 };
 
+const char* Cin_Cout_Messenger::yes  = "Yes";
+const char* Cin_Cout_Messenger::quit = "Quit";
 
 
 
