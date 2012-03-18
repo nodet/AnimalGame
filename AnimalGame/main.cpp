@@ -14,9 +14,6 @@ No isn't necessarily the end of the game
 #include <memory>
 
 
-enum PossibleAnswers {
-    Yes, No, Quit
-};
 
 
 std::string get_string(std::istream& s) {
@@ -31,23 +28,15 @@ std::string get_string(std::istream& s) {
     return result;
 }
 
-PossibleAnswers get_answer() {
-    std::string s = get_string(std::cin);  // TODO
-    if ((s.size() == 0) || (s == "Quit")) {
-        return Quit;
-    } else if (s == "Yes") {
-        return Yes;
-    } else {
-        return No;
-    }
-}
-
 
 class KnowledgeItem;
 typedef std::shared_ptr<KnowledgeItem> KnowledgeItemPtr;
 
 class KnowledgeItem {
 public:
+    enum PossibleAnswers {
+        Yes, No, Quit
+    };
     virtual PossibleAnswers ask_question() const = 0;
 
 	virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) = 0;
@@ -55,8 +44,8 @@ public:
 
     virtual std::string getText() const = 0;
 
-
 };
+
 
 class Animal : public KnowledgeItem {
 public:
@@ -69,11 +58,25 @@ public:
     }
     virtual bool toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current);
     virtual void toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current);
+
 protected:
     virtual std::string getText() const {return text_;}
     virtual std::string getQuestion() const {
         return "Is your animal a " + getText() + "? ";
     }
+
+private:
+    PossibleAnswers get_answer() const {
+        std::string s = get_string(std::cin);  // TODO
+        if ((s.size() == 0) || (s == "Quit")) {
+            return Quit;
+        } else if (s == "Yes") {
+            return Yes;
+        } else {
+            return No;
+        }
+    }
+
 private:
     std::string text_;
 };
@@ -120,6 +123,7 @@ void Animal::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     std::cout << "Think of an animal." << std::endl;
 }
 
+
 bool Animal::toYesNode(const KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     current = root;
     const char* win = "Ha! I win! Let's play again";
@@ -161,13 +165,13 @@ int main() {
     intro();
     while (1) {
         switch (current->ask_question()) {
-        case Quit:
+        case KnowledgeItem::Quit:
             say_goodbye();
             return 0;
-        case Yes:
+        case KnowledgeItem::Yes:
 			current->toYesNode(root, current);
             break;
-        case No:
+        case KnowledgeItem::No:
             current->toNoNode(root, current);
             break;
         default:
