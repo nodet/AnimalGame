@@ -39,7 +39,7 @@ public:
 protected:
     virtual std::string getText() const {return text_;}
     virtual std::string getQuestion() const {
-        return "Is your animal a " + getText() + "? ";
+        return Messenger::guess_animal(getText());
     }
 
 private:
@@ -83,21 +83,16 @@ private:
 
 template <typename Messenger>
 void Animal<Messenger>::toNoNode(Ptr& root, Ptr& current) {
-    const char* what_is_it = "Oh no. What was it? ";
-    std::cout << what_is_it ;
-    std::string newAnimalName = Messenger::get_string(std::cin);
+    std::string newAnimalName = Messenger::ask_new_animal_name();
     Ptr newAnimal(new Animal(newAnimalName));
 
-    std::cout << "What is a yes/no question to tell a " 
-        << newAnimalName << " from a " 
-        << current->getText() << "? ";
-    std::string discriminate_new_animal = Messenger::get_string(std::cin);
+    std::string discriminate_new_animal = Messenger::ask_yes_no_question(newAnimalName, current->getText());
 
     Ptr new_root(new Question<Messenger>(discriminate_new_animal, newAnimal, current));
     root = new_root;
     current = root;
 
-    std::cout << "Thanks! Let's play again." << std::endl;
+    Messenger::say_play_again();
     Messenger::say_think();
 }
 
@@ -105,8 +100,7 @@ void Animal<Messenger>::toNoNode(Ptr& root, Ptr& current) {
 template <typename Messenger>
 bool Animal<Messenger>::toYesNode(const Ptr& root, Ptr& current) {
     current = root;
-    const char* win = "Ha! I win! Let's play again";
-    std::cout << win << std::endl;
+    Messenger::say_i_win();
     Messenger::say_think();
     return true;
 }
@@ -183,10 +177,29 @@ public:
     static void say_think()  {
         std::cout << "Think of an animal." << std::endl;
     }
+    static void say_play_again() {
+        std::cout << "Thanks! Let's play again." << std::endl;
+    }
+    static void say_i_win() {
+        const char* win = "Ha! I win! Let's play again";
+        std::cout << win << std::endl;
+    }
+
+    static std::string guess_animal(const std::string& animalName) {
+        return "Is your animal a " + animalName + "? ";
+    }
+    static std::string yes_no_question(std::string newAnimalName, std::string badName) {
+        return "What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ";
+    }
+    static std::string ask_yes_no_question(std::string newAnimalName, std::string badName) {
+        std::cout << yes_no_question(newAnimalName, badName);
+        return get_string(std::cin);
+    }
+    static std::string ask_new_animal_name() {
+        std::cout << "Oh no. What was it? ";
+        return get_string(std::cin);
+    }
 };
-
-
-
 
 
 
