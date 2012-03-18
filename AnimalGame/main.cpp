@@ -89,8 +89,8 @@ public:
     };
     virtual PossibleAnswers ask_question(Messenger::Ptr messenger) const = 0;
 
-	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr& current) = 0;
-    virtual void toNoNode(Messenger::Ptr messenger, Ptr& root, Ptr& current) = 0;
+	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
+    virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
 
     virtual std::string getText() const = 0;
 
@@ -106,8 +106,8 @@ public:
         std::cout << get_question_to_ask(messenger);
         return get_answer(messenger);
     }
-    virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr& current);
-    virtual void toNoNode(Messenger::Ptr messenger, Ptr& root, Ptr& current);
+    virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
+    virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
 protected:
     virtual std::string getText() const {return text_;}
@@ -139,8 +139,8 @@ public:
         , yes_(yes)
         , no_(no)
     {}
-	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr& current);
-    virtual void toNoNode(Messenger::Ptr messenger, Ptr& root, Ptr& current);
+	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
+    virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
 protected:
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
@@ -153,14 +153,14 @@ private:
 };
 
 
-void Animal::toNoNode(Messenger::Ptr messenger, Ptr& root, Ptr& current) {
+void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     std::string newAnimalName = messenger->ask_new_animal_name();
     Ptr newAnimal(new Animal(newAnimalName));
 
     std::string discriminate_new_animal = messenger->ask_yes_no_question(newAnimalName, current->getText());
 
     Ptr new_root(new Question(discriminate_new_animal, newAnimal, current));
-    root = new_root;
+    *previous = new_root;
     current = root;
 
     messenger->say_play_again();
@@ -168,26 +168,29 @@ void Animal::toNoNode(Messenger::Ptr messenger, Ptr& root, Ptr& current) {
 }
 
 
-bool Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr& current) {
+bool Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     current = root;
     messenger->say_i_win();
     messenger->say_think();
     return true;
 }
 
-void Question::toNoNode(Messenger::Ptr messenger, Ptr& root, Ptr& current) {
+void Question::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+    previous = &no_;
     current = no_;
 }
 
-bool Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr& current) {
-    current = ((Question*)root.get())->yes_;
+bool Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+    previous = &yes_;
+    current = yes_;
     return false;
 }
 
 
 void run(Messenger::Ptr messenger) {
-    KnowledgeItem::Ptr root(new Animal("cat"));
-    KnowledgeItem::Ptr current(root);
+    KnowledgeItem::Ptr  root(new Animal("cat"));
+    KnowledgeItem::Ptr* previous(&root);
+    KnowledgeItem::Ptr  current(root);
 
     messenger->say_hello();
     messenger->say_think();  // TODO: it's odd that this only appears once...  
@@ -198,10 +201,10 @@ void run(Messenger::Ptr messenger) {
             messenger->say_goodbye();
             return;
         case KnowledgeItem::Yes:
-            current->toYesNode(messenger, root, current);
+            current->toYesNode(messenger, root, previous, current);
             break;
         case KnowledgeItem::No:
-            current->toNoNode(messenger, root, current);
+            current->toNoNode(messenger, root, previous, current);
             break;
         default:
             assert(0);
