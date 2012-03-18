@@ -3,7 +3,6 @@
 
 Missing tests:
 Yes Yes -> two wins
-No isn't necessarily the end of the game
 */
 
 
