@@ -111,24 +111,6 @@ void i_win()  {
     std::cout << win << std::endl;
 }
 
-KnowledgeItemPtr i_loose(KnowledgeItemPtr current)  {
-    const char* what_is_it = "Oh no. What was it? ";
-    std::cout << what_is_it ;
-    std::string newAnimalName = get_string(std::cin);
-    KnowledgeItemPtr newAnimal(new KnowledgeItem(newAnimalName));
-
-    std::cout << "What is a yes/no question to tell a " 
-              << newAnimalName << " from a " 
-              << current->getText() << "? ";
-    std::string discriminate_new_animal = get_string(std::cin);
-
-    KnowledgeItemPtr new_root(new Question(discriminate_new_animal, newAnimal, current));
-  
-    std::cout << "Thanks! Let's play again." << std::endl;
-    return new_root;
-}
-
-
 void KnowledgeItem::toNoNode(KnowledgeItemPtr& root, KnowledgeItemPtr& current) {
     const char* what_is_it = "Oh no. What was it? ";
     std::cout << what_is_it ;
