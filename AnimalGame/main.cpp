@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <assert.h>
 #include <string>
 #include <memory>
@@ -102,7 +103,7 @@ public:
 
     virtual std::string getText() const = 0;
 
-    virtual void display_tree(bool first) = 0;
+    virtual void display_tree(std::ofstream& file, bool first) = 0;
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) = 0;
 };
 
@@ -119,7 +120,7 @@ public:
     virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
-    virtual void display_tree(bool) {
+    virtual void display_tree(std::ofstream&, bool) {
         // Intentionally blank
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
@@ -159,7 +160,7 @@ public:
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual void display_tree(bool first) {
+    virtual void display_tree(std::ofstream& file, bool first) {
         //
         // We want to display alternatively one node from the right (No) branch,
         // and one from the left (Yes) branch
@@ -168,26 +169,26 @@ public:
         //
         if (no_.get()) {
             if (!first) {
-                std::cout << "No" << std::endl;
+                file << "No" << std::endl;
             }
             KnowledgeItem::Ptr* toReset = &no_;
-            std::cout << no_->getRightMostAnimal(toReset)->getText() << std::endl;
+            file << no_->getRightMostAnimal(toReset)->getText() << std::endl;
             toReset->reset();
         }
-        std::cout << "No" << std::endl;
+        file << "No" << std::endl;
         if (yes_.get()) {
             KnowledgeItem::Ptr* toReset = &yes_;
-            std::cout << yes_->getRightMostAnimal(toReset)->getText() << std::endl;
+            file << yes_->getRightMostAnimal(toReset)->getText() << std::endl;
             toReset->reset();
         }
-        std::cout << getText() << std::endl;
+        file << getText() << std::endl;
         if (no_.get()) {
-            std::cout << "No" << std::endl;
-            no_->display_tree(false);
+            file << "No" << std::endl;
+            no_->display_tree(file, false);
         }
         if (yes_.get()) {
-            std::cout << "Yes" << std::endl;
-            yes_->display_tree(false);
+            file << "Yes" << std::endl;
+            yes_->display_tree(file, false);
         }
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
@@ -274,6 +275,11 @@ int main() {
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
 
-    root->display_tree(true);
+    {
+        const std::string fileName = "AnimalGame.memory";
+        std::ofstream file(fileName);
+        root->display_tree(file, true);
+        file.close();  //TODO: should be exception-safe
+    }
     return 0;
 }
