@@ -4,11 +4,6 @@
 #include <string>
 #include <memory>
 
-//
-// Next steps:
-// - redirect the output of display_tree into a file
-// - read this file (if it exists) at the beginning, as if from keyboard
-//
 
 class Messenger {
 public:
