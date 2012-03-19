@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Animal Game, by Xavier Nodet <xavier.nodet@gmail.com>
+//  Animal Game, 2012, by Xavier Nodet <xavier.nodet@gmail.com>
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -10,6 +10,13 @@
 #include <string>
 #include <memory>
 
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Input / Output of the game
+//
+//////////////////////////////////////////////////////////////////////////
 
 
 //
@@ -108,6 +115,12 @@ private:
 
 
 
+//////////////////////////////////////////////////////////////////////////
+//
+// Data structures to hold the knowledge of the game
+//
+//////////////////////////////////////////////////////////////////////////
+
 //
 // All the knowledge of the game is organized as a binary tree of
 // animals (the leaf nodes) and questions that discriminate animals
@@ -143,55 +156,42 @@ public:
 };
 
 
+//////////////////////////////////////////////////////////////////////////
 //
 // The leaf nodes of the tree: an animal
 //
+//////////////////////////////////////////////////////////////////////////
+
 class Animal : public KnowledgeItem {
 public:
     Animal(const std::string text)
         : text_(text)
     {}
-    virtual PossibleAnswers ask_question(Messenger::Ptr messenger) const {
-        messenger->say(get_question_to_ask(messenger));
-        return get_answer(messenger);
-    }
+    virtual PossibleAnswers ask_question(Messenger::Ptr messenger) const;
     virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
-    virtual void display_tree(Messenger::Ptr, std::ofstream&, bool) {
-        // Intentionally blank...
-        // Leaf nodes don't even print themselves: a single 'cat' node
-        // is not saved in the memory because it will be re-created in any case
-        // before reading
-    }
-    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
-        // An animal, being a leaf-node, is the right-most of its tree
-        return this;
-    }
+    virtual void display_tree(Messenger::Ptr, std::ofstream&, bool);
+    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset);
 
 protected:
     virtual std::string getText() const {return text_;}
-    virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
-        // An animal asks 'Is your animal a ...?'
-        return messenger->guess_animal(getText());
-    }
+    virtual std::string get_question_to_ask(Messenger::Ptr messenger) const;
 
 private:
-    static PossibleAnswers get_answer(Messenger::Ptr messenger) {
-        std::string s = messenger->get_string();
-        if ((s.size() == 0) || (s == messenger->quit())) {
-            return Quit;
-        } else if (s == messenger->yes()) {
-            return Yes;
-        } else {
-            return No;
-        }
-    }
+    // Wait for answer from user and convert it into one of the enum values
+    static PossibleAnswers get_answer(Messenger::Ptr messenger);
 
 private:
     std::string text_;
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+//
+// The inside nodes of the tree: questions to discriminate the animals
+//
+//////////////////////////////////////////////////////////////////////////
 
 class Question : public Animal {
 public:
@@ -200,60 +200,56 @@ public:
         , yes_(yes)
         , no_(no)
     {}
-	virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
+    virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual void display_tree(Messenger::Ptr messenger, std::ofstream& file, bool first) {
-        //
-        // The idea behind memory save/restore is to save a text file that can
-        // be read later exactly as if the user will type on the keyboard
-        //
-        // We want to display alternatively one node from the right (No) branch,
-        // and one from the left (Yes) branch
-        // We must print the rightmost non-already-printed Animal of each branch, so
-        // we destroy each node once it's been printed.
-        //
-        if (no_.get()) {
-            if (!first) {
-                file << "No" << std::endl;
-            }
-            display_node(file, &no_);
-        }
-        file << "No" << std::endl;
-        if (yes_.get()) {
-            display_node(file, &yes_);
-        }
-        file << getText() << std::endl;
-        display_branch(messenger, file, no_, messenger->no());
-        display_branch(messenger, file, yes_, messenger->yes());
-    }
+    virtual void display_tree(Messenger::Ptr messenger, std::ofstream& file, bool first);
 
-    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
-        // toReset is set to the value of the shared_ptr to reset in order to destroy the node returned
-        toReset = &no_;
-        return no_->getRightMostAnimal(toReset);
-    }
+    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset);
 protected:
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
         return getText() + " ";
     }
 
 private:
-    void display_branch(Messenger::Ptr messenger, std::ofstream& file, KnowledgeItem::Ptr node, const std::string s) {
-        if (node.get()) {
-            file << s << std::endl;
-            node->display_tree(messenger, file, false);
-        }
-    }
-    void display_node(std::ofstream& file, KnowledgeItem::Ptr* toReset)  {
-        file << (*toReset)->getRightMostAnimal(toReset)->getText() << std::endl;
-        toReset->reset();  // Kill the node, ensuring we print it exactly once
-    }
+    void display_branch(Messenger::Ptr messenger, std::ofstream& file, KnowledgeItem::Ptr node, const std::string s);
+    void display_node(std::ofstream& file, KnowledgeItem::Ptr* toReset);
 
 private:
     Ptr yes_;
     Ptr no_;
 };
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Methods for Animal
+//
+// Would be in separate files in a real project...
+//
+//////////////////////////////////////////////////////////////////////////
+
+KnowledgeItem::PossibleAnswers Animal::ask_question(Messenger::Ptr messenger) const {
+    messenger->say(get_question_to_ask(messenger));
+    return get_answer(messenger);
+}
+
+std::string Animal::get_question_to_ask(Messenger::Ptr messenger) const {
+    // An animal asks 'Is your animal a ...?'
+    return messenger->guess_animal(getText());
+}
+
+KnowledgeItem::PossibleAnswers Animal::get_answer(Messenger::Ptr messenger) {
+    std::string s = messenger->get_string();
+    if ((s.size() == 0) || (s == messenger->quit())) {
+        return Quit;
+    } else if (s == messenger->yes()) {
+        return Yes;
+    } else {
+        return No;
+    }
+}
 
 void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     //
@@ -265,7 +261,7 @@ void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous,
 
     std::string discriminate_new_animal = messenger->ask_yes_no_question(newAnimalName, current->getText());
 
-    Ptr new_root(new Question(discriminate_new_animal, newAnimal, current));
+    KnowledgeItem::Ptr new_root(new Question(discriminate_new_animal, newAnimal, current));
     *previous = new_root;
     current = root;
 
@@ -281,6 +277,27 @@ void Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous
     messenger->say_think();
 }
 
+void Animal::display_tree(Messenger::Ptr, std::ofstream&, bool) {
+    // Intentionally blank...
+    // Leaf nodes don't even print themselves: a single 'cat' node
+    // is not saved in the memory because it will be re-created in any case
+    // before reading
+}
+
+const KnowledgeItem* Animal::getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
+    // An animal, being a leaf-node, is the right-most of its tree
+    return this;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Methods for Question
+//
+// Would be in separate files in a real project...
+//
+//////////////////////////////////////////////////////////////////////////
+
 void Question::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     // Go down the correct branch of the tree
     previous = &no_;
@@ -293,13 +310,65 @@ void Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previo
     current = yes_;
 }
 
+void Question::display_tree(Messenger::Ptr messenger, std::ofstream& file, bool first) {
+    //
+    // The idea behind memory save/restore is to save a text file that can
+    // be read later exactly as if the user will type on the keyboard
+    //
+    // We want to display alternatively one node from the right (No) branch,
+    // and one from the left (Yes) branch
+    // We must print the rightmost non-already-printed Animal of each branch, so
+    // we destroy each node once it's been printed.
+    //
+    if (no_.get()) {
+        if (!first) {
+            file << "No" << std::endl;
+        }
+        display_node(file, &no_);
+    }
+    file << "No" << std::endl;
+    if (yes_.get()) {
+        display_node(file, &yes_);
+    }
+    file << getText() << std::endl;
+    display_branch(messenger, file, no_, messenger->no());
+    display_branch(messenger, file, yes_, messenger->yes());
+}
 
+void Question::display_branch(Messenger::Ptr messenger, std::ofstream& file, KnowledgeItem::Ptr node, const std::string s) {
+    if (node.get()) {
+        file << s << std::endl;
+        node->display_tree(messenger, file, false);
+    }
+}
+
+void Question::display_node(std::ofstream& file, KnowledgeItem::Ptr* toReset) {
+    file << (*toReset)->getRightMostAnimal(toReset)->getText() << std::endl;
+    toReset->reset();  // Kill the node, ensuring we print it exactly once
+}
+
+const KnowledgeItem* Question::getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
+    // toReset is set to the value of the shared_ptr to reset in order to destroy the node returned
+    toReset = &no_;
+    return no_->getRightMostAnimal(toReset);
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// 
+// Main part of the game
+//
+//////////////////////////////////////////////////////////////////////////
+
+
+//
+// Start from the root of the tree
+// Repeatedly ask a question and take the appropriate branch until the user is fed-up...
+// Also used to rebuild the in-game memory
+//
 void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
-    //
-    // Start from the root of the tree
-    // Repeatadly ask a question and take the appropriate branch
-    // until the user is fed-up...
-    //
     KnowledgeItem::Ptr* previous(&root);
     KnowledgeItem::Ptr  current(root);
 
@@ -324,6 +393,9 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
     }
 }
 
+//
+// Read from file the content of the knowledge base saved from a previous session
+//
 void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
     std::ifstream file(fileName);  // closes automatically
 
@@ -343,6 +415,9 @@ void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
     run(memoryLoader, root);
 }
 
+//
+// Save to file the content of the knowledge base saved for the next session
+//
 void save_memory(Messenger::Ptr messenger, const std::string& fileName, KnowledgeItem::Ptr root)  {
     std::ofstream file(fileName);     // closes automatically
     root->display_tree(messenger, file, true);
