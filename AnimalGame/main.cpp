@@ -15,7 +15,7 @@ public:
     typedef std::shared_ptr<Messenger> Ptr;
 
     // TODO: All methods should probably be const
-    virtual std::string get_string(std::istream& s) = 0;
+    virtual std::string get_string() = 0;
 
     virtual void say_hello() = 0;
     virtual void say_goodbye() = 0;
@@ -29,7 +29,6 @@ public:
     virtual const char* yes() = 0;
     virtual const char* quit() = 0;
 
-protected:
     // Non-const: would probably change some members if not using global streams
     virtual void say(std::string s) = 0;
 };
@@ -38,10 +37,13 @@ class Cin_Cout_Messenger : public Messenger {
     // Individual messages could be made static members of some other class
     // to further decouple the language from the fact that we use cin/cout.
 public:
-    std::string get_string(std::istream& s) {
+    Cin_Cout_Messenger(std::istream& input = std::cin)
+        : input_(input)
+    {}
+    std::string get_string() {
         std::string result;
         char c;
-        while (s.get(c)) {
+        while (input_.get(c)) {
             if ('\n' == c) {
                 return result;
             }
@@ -61,7 +63,7 @@ public:
         say("Think of an animal.\n");
     }
     void say_play_again() {
-        std::cout << "Thanks! Let's play again." << std::endl;
+        say("Thanks! Let's play again.\n");
     }
     void say_i_win() {
         const char* win = "Ha! I win! Let's play again\n";
@@ -72,20 +74,21 @@ public:
     }
     std::string ask_yes_no_question(std::string newAnimalName, std::string badName) {
         say("What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ");
-        return get_string(std::cin);
+        return get_string();
     }
     std::string ask_new_animal_name() {
         say("Oh no. What was it? ");
-        return get_string(std::cin);
+        return get_string();
     }
 
     const char* yes() {return "Yes";}
     const char* quit() {return "Quit";}
 
-protected:
     virtual void say(std::string s) {
         std::cout << s;
     }
+private:
+    std::istream& input_;
 };
 
 
@@ -114,7 +117,7 @@ public:
         : text_(text)
     {}
     virtual PossibleAnswers ask_question(Messenger::Ptr messenger) const {
-        std::cout << get_question_to_ask(messenger);
+        messenger->say(get_question_to_ask(messenger));
         return get_answer(messenger);
     }
     virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
@@ -135,7 +138,7 @@ protected:
 
 private:
     static PossibleAnswers get_answer(Messenger::Ptr messenger) {
-        std::string s = messenger->get_string(std::cin);
+        std::string s = messenger->get_string();
         if ((s.size() == 0) || (s == messenger->quit())) {
             return Quit;
         } else if (s == messenger->yes()) {
@@ -272,11 +275,30 @@ int main() {
 
     KnowledgeItem::Ptr root(new Animal("cat"));
 
+    const std::string fileName = "AnimalGame.memory";
+    {
+        std::ifstream file(fileName);
+
+        class Muted_Messenger : public Cin_Cout_Messenger {
+        public:
+            Muted_Messenger(std::istream& input = std::cin)
+                : Cin_Cout_Messenger(input)
+            {}
+            virtual void say(std::string s) {}
+        };
+
+        Messenger::Ptr memoryLoader(new Muted_Messenger(file));
+        if (!file.bad()) {
+            memoryLoader->get_string(); // skip the first 'cat'
+        }
+        run(memoryLoader, root);
+        file.close();   // TODO: be exception-safe
+    }
+
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
 
     {
-        const std::string fileName = "AnimalGame.memory";
         std::ofstream file(fileName);
         root->display_tree(file, true);
         file.close();  //TODO: should be exception-safe
