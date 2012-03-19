@@ -113,7 +113,7 @@ public:
     virtual PossibleAnswers ask_question(Messenger::Ptr messenger) const = 0;
 
     // Answer to the latest question was 'Yes'
-	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
+	virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
     // Answer to the latest question was 'No': we may have to create a new animal
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
 
@@ -139,7 +139,7 @@ public:
         messenger->say(get_question_to_ask(messenger));
         return get_answer(messenger);
     }
-    virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
+    virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
     virtual void display_tree(std::ofstream&, bool) {
@@ -184,7 +184,7 @@ public:
         , yes_(yes)
         , no_(no)
     {}
-	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
+	virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
     virtual void display_tree(std::ofstream& file, bool first) {
@@ -256,12 +256,11 @@ void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous,
 }
 
 
-bool Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+void Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     // Program guessed correctly.  Start over.
     current = root;
     messenger->say_i_win();
     messenger->say_think();
-    return true;
 }
 
 void Question::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
@@ -270,15 +269,19 @@ void Question::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previou
     current = no_;
 }
 
-bool Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+void Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     // Go down the correct branch of the tree
     previous = &yes_;
     current = yes_;
-    return false;
 }
 
 
 void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
+    //
+    // Start from the root of the tree
+    // Repeatadly ask a question and take the appropriate branch
+    // until the user is fed-up...
+    //
     KnowledgeItem::Ptr* previous(&root);
     KnowledgeItem::Ptr  current(root);
 
@@ -306,6 +309,7 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
 void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
     std::ifstream file(fileName);
 
+    // Don't print the questions or comments while reading the memory back
     class Muted_Messenger : public Cin_Cout_Messenger {
     public:
         Muted_Messenger(std::istream& input = std::cin)
@@ -330,6 +334,7 @@ void save_memory(const std::string& fileName, KnowledgeItem::Ptr root)  {
 
 int main() {
 
+    // Everybody knows that cats exist, even computers...
     KnowledgeItem::Ptr root(new Animal("cat"));
 
     const std::string fileName = "AnimalGame.memory";
