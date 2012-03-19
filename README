@@ -1,0 +1,30 @@
+AnimalGame is a programming exercise with the following goal...
+
+The idea is that you choose a secret animal. The computer then asks you questions about the animal, terminating with a guess. If its guess is right, the computer wins. If it is wrong you win. But as part of winning, you have to provide your animal, and a differentiating yes/no question. (See below for an example.). 
+
+Between sessions, the program should save its data in a text file that it reloads each time it runs, so its knowledge grows over time.
+
+The program should be written entirely in portable C++, so I can compile it with any standard C++ compiler, such as g++ or MSVC. Do not use a database because that will make it difficult for me to test your code. You are free to use any standard libraries or freely available libraries that you find useful. Other than use of libraries and documentation, do not use the internet or other people for help. Try to use your best programming style. Do not use the internet for help, except to look up how to use C++ library functions. There are definitely solutions to this problem online, so please be honest. Likewise, do not get help from anyone else while solving the problem.
+
+At the minimum, your code should be able to run simple sessions like the example below correctly, but you are encouraged to take the opportunity to add any features that you think are interesting/useful (e.g., handling multi-word animal names like Grant's Gazelle may be deceptively tricky in C++) or demonstrate more advanced skills. We don't want to ruin your week, so just do what you can reasonably do in several hours time.
+
+A session of the game might look something like: 
+
+Hi, let's play the animal game. You can quit at any time by typing "Quit."
+
+Think of an animal. 
+Is your animal a cat? No 
+Oh no. What was it? Lobster 
+What is a yes/no question to tell a lobster from a cat? Does it have Antenna? 
+Thanks! Let's play again. 
+
+Think of another animal. 
+Does it have Antenna? No 
+Is it a cat? Yes 
+Ha! I win! Let's play again 
+
+Think of another animal. 
+Does it have Antenna? Quit 
+OK. Bye! 
+
+You can play around with the game some more at http://www.animalgame.com/ . Of course, your version is only required to be a console application.
