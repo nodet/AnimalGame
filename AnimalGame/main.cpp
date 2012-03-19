@@ -100,7 +100,7 @@ public:
 
     virtual std::string getText() const = 0;
 
-    virtual bool display_tree(bool) = 0;
+    virtual void display_tree(bool first) = 0;
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) = 0;
 };
 
@@ -117,9 +117,8 @@ public:
     virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
-    virtual bool display_tree(bool) {
-        //std::cout << getText() << std::endl;
-        return true;
+    virtual void display_tree(bool) {
+        // Intentionally blank
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
         return this;
@@ -158,7 +157,7 @@ public:
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual bool display_tree(bool first) {
+    virtual void display_tree(bool first) {
         if (no_.get()) {
             if (!first) {
                 std::cout << "No" << std::endl;
@@ -182,7 +181,6 @@ public:
             std::cout << "Yes" << std::endl;
             yes_->display_tree(false);
         }
-        return false;
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
         toReset = &no_;
