@@ -158,12 +158,16 @@ public:
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual bool display_tree(bool) {
+    virtual bool display_tree(bool first) {
         if (no_.get()) {
+            if (!first) {
+                std::cout << "No" << std::endl;
+            }
             KnowledgeItem::Ptr* toReset = &no_;
             std::cout << no_->getRightMostAnimal(toReset)->getText() << std::endl;
             toReset->reset();
         }
+        std::cout << "No" << std::endl;
         if (yes_.get()) {
             KnowledgeItem::Ptr* toReset = &yes_;
             std::cout << yes_->getRightMostAnimal(toReset)->getText() << std::endl;
@@ -171,10 +175,12 @@ public:
         }
         std::cout << getText() << std::endl;
         if (no_.get()) {
-            no_->display_tree(true);
+            std::cout << "No" << std::endl;
+            no_->display_tree(false);
         }
         if (yes_.get()) {
-            yes_->display_tree(true);
+            std::cout << "Yes" << std::endl;
+            yes_->display_tree(false);
         }
         return false;
     }
