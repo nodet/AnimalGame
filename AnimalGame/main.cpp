@@ -32,6 +32,7 @@ public:
     virtual std::string ask_new_animal_name() = 0;
 
     virtual const char* yes() = 0;
+    virtual const char* no() = 0;
     virtual const char* quit() = 0;
 
     virtual void say(std::string s) = 0;
@@ -95,6 +96,7 @@ public:
     }
 
     const char* yes() {return "Yes";}
+    const char* no() {return "No";}
     const char* quit() {return "Quit";}
 
     virtual void say(std::string s) {
@@ -134,7 +136,7 @@ public:
     virtual std::string getText() const = 0;
 
     // A destructive tree-printing method to save the memory of the game
-    virtual void display_tree(std::ofstream& file, bool first) = 0;
+    virtual void display_tree(Messenger::Ptr messenger, std::ofstream& file, bool first) = 0;
     // Returns the leaf that is furthest on the right (the 'No' branches)
     // And toReset is the shared_ptr pointing to this leaf (to reset it)
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) = 0;
@@ -156,7 +158,7 @@ public:
     virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
-    virtual void display_tree(std::ofstream&, bool) {
+    virtual void display_tree(Messenger::Ptr, std::ofstream&, bool) {
         // Intentionally blank...
         // Leaf nodes don't even print themselves: a single 'cat' node
         // is not saved in the memory because it will be re-created in any case
@@ -201,7 +203,7 @@ public:
 	virtual void toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual void display_tree(std::ofstream& file, bool first) {
+    virtual void display_tree(Messenger::Ptr messenger, std::ofstream& file, bool first) {
         //
         // The idea behind memory save/restore is to save a text file that can
         // be read later exactly as if the user will type on the keyboard
@@ -215,26 +217,17 @@ public:
             if (!first) {
                 file << "No" << std::endl;
             }
-            KnowledgeItem::Ptr* toReset = &no_;
-            file << no_->getRightMostAnimal(toReset)->getText() << std::endl;
-            toReset->reset();
+            display_node(file, &no_);
         }
         file << "No" << std::endl;
         if (yes_.get()) {
-            KnowledgeItem::Ptr* toReset = &yes_;
-            file << yes_->getRightMostAnimal(toReset)->getText() << std::endl;
-            toReset->reset();
+            display_node(file, &yes_);
         }
         file << getText() << std::endl;
-        if (no_.get()) {
-            file << "No" << std::endl;
-            no_->display_tree(file, false);
-        }
-        if (yes_.get()) {
-            file << "Yes" << std::endl;
-            yes_->display_tree(file, false);
-        }
+        display_branch(messenger, file, no_, messenger->no());
+        display_branch(messenger, file, yes_, messenger->yes());
     }
+
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
         // toReset is set to the value of the shared_ptr to reset in order to destroy the node returned
         toReset = &no_;
@@ -243,6 +236,18 @@ public:
 protected:
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
         return getText() + " ";
+    }
+
+private:
+    void display_branch(Messenger::Ptr messenger, std::ofstream& file, KnowledgeItem::Ptr node, const std::string s) {
+        if (node.get()) {
+            file << s << std::endl;
+            node->display_tree(messenger, file, false);
+        }
+    }
+    void display_node(std::ofstream& file, KnowledgeItem::Ptr* toReset)  {
+        file << (*toReset)->getRightMostAnimal(toReset)->getText() << std::endl;
+        toReset->reset();  // Kill the node, ensuring we print it exactly once
     }
 
 private:
@@ -338,9 +343,9 @@ void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
     run(memoryLoader, root);
 }
 
-void save_memory(const std::string& fileName, KnowledgeItem::Ptr root)  {
+void save_memory(Messenger::Ptr messenger, const std::string& fileName, KnowledgeItem::Ptr root)  {
     std::ofstream file(fileName);     // closes automatically
-    root->display_tree(file, true);
+    root->display_tree(messenger, file, true);
 }
 
 int main() {
@@ -354,7 +359,7 @@ int main() {
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
 
-    save_memory(fileName, root);
+    save_memory(messenger, fileName, root);
 
     return 0;
 }
