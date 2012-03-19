@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////////
+//
+//  Animal Game, by Xavier Nodet <xavier.nodet@gmail.com
+//
+//////////////////////////////////////////////////////////////////////////
+
 #include <iostream>
 #include <fstream>
 #include <assert.h>
@@ -5,6 +11,10 @@
 #include <memory>
 
 
+//
+// We'll have to ask questions and get answers
+// Here's an interface for this.
+//
 class Messenger {
 public:
     typedef std::shared_ptr<Messenger> Ptr;
@@ -26,6 +36,9 @@ public:
     virtual void say(std::string s) = 0;
 };
 
+//
+// A Messenger that uses the console and speaks English
+//
 class Cin_Cout_Messenger : public Messenger {
     // Individual messages could be made static members of some other class
     // to further decouple the language from the fact that we use cin/cout.
