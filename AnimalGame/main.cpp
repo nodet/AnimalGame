@@ -265,6 +265,11 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
     }
 }
 
+void save_memory(const std::string& fileName, KnowledgeItem::Ptr root)  {
+    std::ofstream file(fileName);
+    root->display_tree(file, true);
+    file.close();  //TODO: should be exception-safe
+}
 
 int main() {
 
@@ -272,31 +277,28 @@ int main() {
 
     const std::string fileName = "AnimalGame.memory";
     {
-        std::ifstream file(fileName);
+    std::ifstream file(fileName);
 
-        class Muted_Messenger : public Cin_Cout_Messenger {
-        public:
-            Muted_Messenger(std::istream& input = std::cin)
-                : Cin_Cout_Messenger(input)
-            {}
-            virtual void say(std::string s) {}
-        };
+    class Muted_Messenger : public Cin_Cout_Messenger {
+    public:
+        Muted_Messenger(std::istream& input = std::cin)
+            : Cin_Cout_Messenger(input)
+        {}
+        virtual void say(std::string s) {}
+    };
 
-        Messenger::Ptr memoryLoader(new Muted_Messenger(file));
-        if (!file.bad()) {
-            memoryLoader->get_string(); // skip the first 'cat'
-        }
-        run(memoryLoader, root);
-        file.close();   // TODO: be exception-safe
+    Messenger::Ptr memoryLoader(new Muted_Messenger(file));
+    if (!file.bad()) {
+        memoryLoader->get_string(); // skip the first 'cat'
+    }
+    run(memoryLoader, root);
+    file.close();   // TODO: be exception-safe
     }
 
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
 
-    {
-        std::ofstream file(fileName);
-        root->display_tree(file, true);
-        file.close();  //TODO: should be exception-safe
-    }
+    save_memory(fileName, root);
+
     return 0;
 }
