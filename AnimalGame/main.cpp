@@ -11,6 +11,7 @@
 #include <memory>
 
 
+
 //
 // We'll have to ask questions and get answers
 // Here's an interface for this.
@@ -249,7 +250,6 @@ private:
     Ptr no_;
 };
 
-// TODO: current is probably not needed, could be this, but needs shared_ptr and not naked ptr
 void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
     //
     // An animal has not been guess correctly. We have to create a new Animal, and
@@ -320,7 +320,7 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
 }
 
 void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
-    std::ifstream file(fileName);
+    std::ifstream file(fileName);  // closes automatically
 
     // Don't print the questions or comments while reading the memory back
     class Muted_Messenger : public Cin_Cout_Messenger {
@@ -336,13 +336,11 @@ void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
         memoryLoader->get_string(); // skip the first 'cat'
     }
     run(memoryLoader, root);
-    file.close();   // TODO: be exception-safe
 }
 
 void save_memory(const std::string& fileName, KnowledgeItem::Ptr root)  {
-    std::ofstream file(fileName);
+    std::ofstream file(fileName);     // closes automatically
     root->display_tree(file, true);
-    file.close();  //TODO: should be exception-safe
 }
 
 int main() {
