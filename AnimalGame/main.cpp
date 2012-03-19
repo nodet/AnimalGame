@@ -9,7 +9,6 @@ class Messenger {
 public:
     typedef std::shared_ptr<Messenger> Ptr;
 
-    // TODO: All methods should probably be const
     virtual std::string get_string() = 0;
 
     virtual void say_hello() = 0;
@@ -24,7 +23,6 @@ public:
     virtual const char* yes() = 0;
     virtual const char* quit() = 0;
 
-    // Non-const: would probably change some members if not using global streams
     virtual void say(std::string s) = 0;
 };
 
@@ -49,30 +47,36 @@ public:
     void say_hello()  {
         const char* intro = "Hi, let's play the animal game. You can quit at any time by typing \"Quit.\"\n\n";
         say(intro);
+        say_think();
     }
     void say_goodbye()  {
         const char* goodbye = "Ok. Bye!\n";
         say(goodbye);
     }
     void say_think()  {
-        say("Think of an animal.\n");
+        const char* think = "Think of an animal.\n";
+        say(think);
     }
     void say_play_again() {
-        say("Thanks! Let's play again.\n");
+        const char* play_again = "Thanks! Let's play again.\n";
+        say(play_again);
     }
     void say_i_win() {
         const char* win = "Ha! I win! Let's play again\n";
         say(win);
     }
     std::string guess_animal(const std::string& animalName) {
+        // TODO: use sprintf so that the string can be externalized in one piece
         return "Is your animal a " + animalName + "? ";
     }
     std::string ask_yes_no_question(std::string newAnimalName, std::string badName) {
+        // TODO: use sprintf so that the string can be externalized in one piece
         say("What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ");
         return get_string();
     }
     std::string ask_new_animal_name() {
-        say("Oh no. What was it? ");
+        const char* what_is_it = "Oh no. What was it? ";
+        say(what_is_it);
         return get_string();
     }
 
@@ -88,24 +92,44 @@ private:
 
 
 
+//
+// All the knowledge of the game is organized as a binary tree of
+// animals (the leaf nodes) and questions that discriminate animals
+// (the non-leaf nodes)
+//
+// This is the root class for both Animal and Question
+//
 class KnowledgeItem {
 public:
     typedef std::shared_ptr<KnowledgeItem> Ptr;
+
+    // All KnowledgeItems know a question to which the answer is Yes or No
+    // or Quit, if you're bored...
     enum PossibleAnswers {
         Yes, No, Quit
     };
+    // Could be a question that discriminates animals,
+    // or checking if user thought about this particular animal
     virtual PossibleAnswers ask_question(Messenger::Ptr messenger) const = 0;
 
+    // Answer to the latest question was 'Yes'
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
+    // Answer to the latest question was 'No': we may have to create a new animal
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) = 0;
 
     virtual std::string getText() const = 0;
 
+    // A destructive tree-printing method to save the memory of the game
     virtual void display_tree(std::ofstream& file, bool first) = 0;
+    // Returns the leaf that is furthest on the right (the 'No' branches)
+    // And toReset is the shared_ptr pointing to this leaf (to reset it)
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) = 0;
 };
 
 
+//
+// The leaf nodes of the tree: an animal
+//
 class Animal : public KnowledgeItem {
 public:
     Animal(const std::string text)
@@ -119,15 +143,18 @@ public:
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
     virtual void display_tree(std::ofstream&, bool) {
-        // Intentionally blank
+        // Intentionally blank...
+        // Leaf nodes don't even print themselves...
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
+        // An animal, being a leaf-node, is the right-most of its tree
         return this;
     }
 
 protected:
     virtual std::string getText() const {return text_;}
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
+        // An animal asks 'Is your animal a ...?'
         return messenger->guess_animal(getText());
     }
 
@@ -199,7 +226,7 @@ protected:
         return getText() + " ";
     }
 
-public: // TODO
+private:
     Ptr yes_;
     Ptr no_;
 };
@@ -244,8 +271,7 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
     KnowledgeItem::Ptr  current(root);
 
     messenger->say_hello();
-    messenger->say_think();  // TODO: it's odd that this only appears once...  
-                             // Others are inside toYesNode or toNoNode...
+
     bool stop = false;
     while (!stop) {
         switch (current->ask_question(messenger)) {
