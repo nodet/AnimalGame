@@ -4,11 +4,6 @@
 #include <memory>
 
 
-/*
-TODO: dolphin, salmon, dog, cat
-*/
-
-
 class Messenger {
 public:
     typedef std::shared_ptr<Messenger> Ptr;
