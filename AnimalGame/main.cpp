@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Animal Game, by Xavier Nodet <xavier.nodet@gmail.com
+//  Animal Game, by Xavier Nodet <xavier.nodet@gmail.com>
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -79,11 +79,11 @@ public:
         say(win);
     }
     std::string guess_animal(const std::string& animalName) {
-        // TODO: use sprintf so that the string can be externalized in one piece
+        // TODO: use boost::format so that the string can be externalized in one piece
         return "Is your animal a " + animalName + "? ";
     }
     std::string ask_yes_no_question(std::string newAnimalName, std::string badName) {
-        // TODO: use sprintf so that the string can be externalized in one piece
+        // TODO: use boost::format so that the string can be externalized in one piece
         say("What is a yes/no question to tell a " + newAnimalName + " from a " + badName + "? ");
         return get_string();
     }
