@@ -3,6 +3,11 @@
 #include <string>
 #include <memory>
 
+//
+// Next steps:
+// - redirect the output of display_tree into a file
+// - read this file (if it exists) at the beginning, as if from keyboard
+//
 
 class Messenger {
 public:
@@ -29,9 +34,6 @@ protected:
 };
 
 class Cin_Cout_Messenger : public Messenger {
-    // All input/output gathered as static methods of this class
-    // intended to be a template parameter of the others.
-
     // Individual messages could be made static members of some other class
     // to further decouple the language from the fact that we use cin/cout.
 public:
@@ -158,6 +160,12 @@ public:
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
     virtual void display_tree(bool first) {
+        //
+        // We want to display alternatively one node from the right (No) branch,
+        // and one from the left (Yes) branch
+        // We must print the rightmost non-already-printed Animal of each branch, so
+        // we destroy each node once it's been printed.
+        //
         if (no_.get()) {
             if (!first) {
                 std::cout << "No" << std::endl;
@@ -183,6 +191,7 @@ public:
         }
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
+        // toReset is set to the value of the shared_ptr to reset in order to destroy the node returned
         toReset = &no_;
         return no_->getRightMostAnimal(toReset);
     }
