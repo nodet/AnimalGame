@@ -144,7 +144,9 @@ public:
     
     virtual void display_tree(std::ofstream&, bool) {
         // Intentionally blank...
-        // Leaf nodes don't even print themselves...
+        // Leaf nodes don't even print themselves: a single 'cat' node
+        // is not saved in the memory because it will be re-created in any case
+        // before reading
     }
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
         // An animal, being a leaf-node, is the right-most of its tree
@@ -186,6 +188,9 @@ public:
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
     virtual void display_tree(std::ofstream& file, bool first) {
+        //
+        // The idea behind memory save/restore is to save a text file that can
+        // be read later exactly as if the user will type on the keyboard
         //
         // We want to display alternatively one node from the right (No) branch,
         // and one from the left (Yes) branch
@@ -231,8 +236,12 @@ private:
     Ptr no_;
 };
 
-
+// TODO: current is probably not needed, could be this, but needs shared_ptr and not naked ptr
 void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+    //
+    // An animal has not been guess correctly. We have to create a new Animal, and
+    // a discrimination Question
+    //
     std::string newAnimalName = messenger->ask_new_animal_name();
     Ptr newAnimal(new Animal(newAnimalName));
 
@@ -248,6 +257,7 @@ void Animal::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous,
 
 
 bool Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+    // Program guessed correctly.  Start over.
     current = root;
     messenger->say_i_win();
     messenger->say_think();
@@ -255,11 +265,13 @@ bool Animal::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous
 }
 
 void Question::toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+    // Go down the correct branch of the tree
     previous = &no_;
     current = no_;
 }
 
 bool Question::toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current) {
+    // Go down the correct branch of the tree
     previous = &yes_;
     current = yes_;
     return false;
