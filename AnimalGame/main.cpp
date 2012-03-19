@@ -4,7 +4,9 @@
 #include <memory>
 
 
-
+/*
+TODO: dolphin, salmon, dog, cat
+*/
 
 
 class Messenger {
@@ -103,8 +105,8 @@ public:
 
     virtual std::string getText() const = 0;
 
-    virtual bool display_tree(bool) const = 0;
-    virtual const KnowledgeItem* getRightMostAnimal() const = 0;
+    virtual bool display_tree(bool) = 0;
+    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) = 0;
 };
 
 
@@ -120,11 +122,11 @@ public:
     virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     
-    virtual bool display_tree(bool) const {
+    virtual bool display_tree(bool) {
         //std::cout << getText() << std::endl;
         return true;
     }
-    virtual const KnowledgeItem* getRightMostAnimal() const {
+    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
         return this;
     }
 
@@ -161,18 +163,29 @@ public:
 	virtual bool toYesNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
-    virtual bool display_tree(bool skipNo) const {
-        bool must_skip_no = no_->display_tree(false);
-        if (!skipNo && must_skip_no) {
-            std::cout << no_->getText() << std::endl;
+    virtual bool display_tree(bool) {
+        if (no_.get()) {
+            KnowledgeItem::Ptr* toReset = &no_;
+            std::cout << no_->getRightMostAnimal(toReset)->getText() << std::endl;
+            toReset->reset();
         }
-        std::cout << yes_->getRightMostAnimal()->getText() << std::endl;
+        if (yes_.get()) {
+            KnowledgeItem::Ptr* toReset = &yes_;
+            std::cout << yes_->getRightMostAnimal(toReset)->getText() << std::endl;
+            toReset->reset();
+        }
         std::cout << getText() << std::endl;
-        yes_->display_tree(true);
+        if (no_.get()) {
+            no_->display_tree(true);
+        }
+        if (yes_.get()) {
+            yes_->display_tree(true);
+        }
         return false;
     }
-    virtual const KnowledgeItem* getRightMostAnimal() const {
-        return no_->getRightMostAnimal();
+    virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset) {
+        toReset = &no_;
+        return no_->getRightMostAnimal(toReset);
     }
 protected:
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
@@ -253,6 +266,6 @@ int main() {
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
 
-    root->display_tree(false);
+    root->display_tree(true);
     return 0;
 }
