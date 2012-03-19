@@ -265,18 +265,7 @@ void run(Messenger::Ptr messenger, KnowledgeItem::Ptr& root) {
     }
 }
 
-void save_memory(const std::string& fileName, KnowledgeItem::Ptr root)  {
-    std::ofstream file(fileName);
-    root->display_tree(file, true);
-    file.close();  //TODO: should be exception-safe
-}
-
-int main() {
-
-    KnowledgeItem::Ptr root(new Animal("cat"));
-
-    const std::string fileName = "AnimalGame.memory";
-    {
+void read_memory(const std::string fileName, KnowledgeItem::Ptr& root)  {
     std::ifstream file(fileName);
 
     class Muted_Messenger : public Cin_Cout_Messenger {
@@ -293,7 +282,20 @@ int main() {
     }
     run(memoryLoader, root);
     file.close();   // TODO: be exception-safe
-    }
+}
+
+void save_memory(const std::string& fileName, KnowledgeItem::Ptr root)  {
+    std::ofstream file(fileName);
+    root->display_tree(file, true);
+    file.close();  //TODO: should be exception-safe
+}
+
+int main() {
+
+    KnowledgeItem::Ptr root(new Animal("cat"));
+
+    const std::string fileName = "AnimalGame.memory";
+    read_memory(fileName, root);
 
     Messenger::Ptr messenger (new Cin_Cout_Messenger);
     run(messenger, root);
