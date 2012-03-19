@@ -174,8 +174,10 @@ public:
     virtual void display_tree(Messenger::Ptr, std::ofstream&, bool);
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset);
 
-protected:
     virtual std::string getText() const {return text_;}
+
+protected:
+    // Converts the text of the node into an appropriate question
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const;
 
 private:
@@ -204,15 +206,17 @@ public:
     virtual void toNoNode(Messenger::Ptr messenger, const Ptr& root, Ptr*& previous, Ptr& current);
 
     virtual void display_tree(Messenger::Ptr messenger, std::ofstream& file, bool first);
-
     virtual const KnowledgeItem* getRightMostAnimal(KnowledgeItem::Ptr*& toReset);
+
 protected:
     virtual std::string get_question_to_ask(Messenger::Ptr messenger) const {
         return getText() + " ";
     }
 
 private:
+    // If it exists, display a node and its sub-tree
     void display_branch(Messenger::Ptr messenger, std::ofstream& file, KnowledgeItem::Ptr node, const std::string s);
+    // Find and display the rightmost node, and allow for its deletion by returning the pointing shared_ptr
     void display_node(std::ofstream& file, KnowledgeItem::Ptr* toReset);
 
 private:
@@ -423,7 +427,7 @@ void save_memory(Messenger::Ptr messenger, const std::string& fileName, Knowledg
     root->display_tree(messenger, file, true);
 }
 
-int main() {
+int main(int, char**) {
 
     // Everybody knows that cats exist, even computers...
     KnowledgeItem::Ptr root(new Animal("cat"));
