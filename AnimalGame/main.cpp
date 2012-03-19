@@ -106,7 +106,7 @@ public:
     const char* no() {return "No";}
     const char* quit() {return "Quit";}
 
-    virtual void say(std::string s) {
+    void say(std::string s) {
         std::cout << s;
     }
 private:
